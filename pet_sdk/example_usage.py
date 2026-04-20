@@ -39,8 +39,9 @@ def main() -> None:
         # Adopt the first available pet
         candidate = next((pet for pet in pets if not pet.adopted), None)
         if candidate is None:
-            print("No available pets to adopt.")
-            return
+            # Keep the example deterministic: create one available pet, then adopt it.
+            candidate = pets_api.add_pet_pets_post(PetCreate(name="Nova", type="Cat"))
+            print(f"Created pet #{candidate.id}: {candidate.name} for adoption demo.")
 
         adopted = pets_api.adopt_pet_pets_id_adopt_post(candidate.id)
         print(f"Adopted pet #{adopted.id}: {adopted.name} (adopted={adopted.adopted})")

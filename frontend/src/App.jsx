@@ -1,128 +1,52 @@
-import { useEffect, useState } from "react";
-import { adoptPet, createPet, getPets } from "./api";
+import { Navigate, Route, Routes } from "react-router-dom";
 import "./App.css";
+import AdminRoute from "./components/AdminRoute";
+import AppLayout from "./components/AppLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AddPet from "./pages/AddPet";
+import Admin from "./pages/Admin";
+import AIRecommendation from "./pages/AIRecommendation";
+import Analytics from "./pages/Analytics";
+import Dashboard from "./pages/Dashboard";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Pets from "./pages/Pets";
+import Register from "./pages/Register";
 
 function App() {
-  const [pets, setPets] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [name, setName] = useState("");
-  const [type, setType] = useState("");
-
-  const loadPets = async () => {
-    try {
-      setLoading(true);
-      setError("");
-      const response = await getPets();
-      setPets(response.data);
-    } catch (err) {
-      setError(err?.response?.data?.detail || "Failed to load pets.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadPets();
-  }, []);
-
-  const handleAdopt = async (petId) => {
-    try {
-      setError("");
-      await adoptPet(petId);
-      setPets((currentPets) =>
-        currentPets.map((pet) =>
-          pet.id === petId ? { ...pet, adopted: true } : pet
-        )
-      );
-    } catch (err) {
-      setError(err?.response?.data?.detail || "Unable to adopt pet.");
-      loadPets();
-    }
-  };
-
-  const handleCreatePet = async (event) => {
-    event.preventDefault();
-    if (!name.trim() || !type.trim()) {
-      setError("Name and type are required.");
-      return;
-    }
-
-    try {
-      setError("");
-      const response = await createPet({ name: name.trim(), type: type.trim() });
-      setPets((currentPets) => [...currentPets, response.data]);
-      setName("");
-      setType("");
-    } catch (err) {
-      setError(err?.response?.data?.detail || "Unable to create pet.");
-    }
-  };
-
   return (
-    <main className="app">
-      <section className="hero">
-        <p className="tagline">Find. Adopt. Love.</p>
-        <h1>FurFinds</h1>
-      </section>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
-      <section className="card">
-        <form className="create-form" onSubmit={handleCreatePet}>
-          <input
-            className="field-input"
-            type="text"
-            placeholder="Pet name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-          />
-          <input
-            className="field-input"
-            type="text"
-            placeholder="Pet type"
-            value={type}
-            onChange={(event) => setType(event.target.value)}
-          />
-          <button className="adopt-button" type="submit">
-            Add Pet
-          </button>
-        </form>
+      <Route
+        element={
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/pets" element={<Pets />} />
+        <Route path="/add-pet" element={<AddPet />} />
+        <Route path="/analytics" element={<Analytics />} />
+        <Route path="/ai-recommendation" element={<AIRecommendation />} />
+      </Route>
 
-        <div className="header-row">
-          <h2>Pet List</h2>
-          <button className="refresh-button" onClick={loadPets}>
-            Refresh
-          </button>
-        </div>
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AppLayout />
+          </AdminRoute>
+        }
+      >
+        <Route index element={<Admin />} />
+      </Route>
 
-        {error ? <p className="error-text">{error}</p> : null}
-        {loading ? <p className="helper-text">Loading pets...</p> : null}
-
-        {!loading && pets.length === 0 ? (
-          <p className="helper-text">No pets available yet.</p>
-        ) : (
-          <ul className="pet-list">
-            {pets.map((pet) => (
-              <li className="pet-item" key={pet.id}>
-                <div>
-                  <h3>{pet.name}</h3>
-                  <p className="pet-meta">Type: {pet.type}</p>
-                  <p className={pet.adopted ? "status adopted" : "status open"}>
-                    {pet.adopted ? "Adopted" : "Available"}
-                  </p>
-                </div>
-                <button
-                  className="adopt-button"
-                  onClick={() => handleAdopt(pet.id)}
-                  disabled={pet.adopted}
-                >
-                  {pet.adopted ? "Adopted" : "Adopt"}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </main>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 

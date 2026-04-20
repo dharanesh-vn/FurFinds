@@ -20,7 +20,7 @@ if exist "requirements.txt" (
     pip install -r requirements.txt
     if errorlevel 1 goto :error
 ) else (
-    pip install fastapi sqlalchemy alembic uvicorn pydantic pytest
+    pip install fastapi sqlalchemy alembic uvicorn pydantic pytest httpx python-dateutil urllib3 chromadb bcrypt pyjwt
     if errorlevel 1 goto :error
 )
 
