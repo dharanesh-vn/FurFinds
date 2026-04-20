@@ -1,216 +1,235 @@
-# FurFinds - Find. Adopt. Love.
+# FurFinds
+### Find. Adopt. Love.
 
-FurFinds is a production-style full-stack pet adoption platform that demonstrates clean API design, migration-driven database management, real-time updates, generated SDK integration, and practical AI/RAG features.
-
-It is designed as a portfolio-ready engineering project: clear architecture, test coverage, and recruiter-friendly implementation choices.
+FurFinds is a full-stack pet adoption platform built end-to-end by a single developer.  
+It demonstrates backend API design, database migrations, authentication, frontend UX, analytics visualization, and practical AI-assisted recommendations in one integrated system.
 
 ## Project Overview
 
-FurFinds enables users to:
-- Add pets to the adoption platform
-- Browse available pets
-- Adopt pets with business-rule validation
-- Receive real-time adoption updates via WebSockets
-- Get AI-powered pet recommendations based on natural language preferences
-- Track adoption analytics in the frontend dashboard
+FurFinds is built with FastAPI, React, and SQLite, and includes:
+- pet management and adoption workflow
+- JWT authentication and role-based access
+- rich pet profiles with Tamil Nadu city context
+- dynamic filtering and smart recommendations
+- analytics dashboards with multiple charts
+- WebSocket real-time adoption updates
+- generated OpenAPI Python SDK
+
+## Features
+
+### Core
+- View, add, and adopt pets
+- Prevent duplicate adoption using business rules
+
+### Authentication
+- User registration and login with JWT
+- Protected routes and role-based checks
+
+### Admin
+- Pre-seeded admin account
+- Admin-only endpoint for user listing
+
+### Pet System
+- Rich pet profile fields (breed, age, gender, health, location, contact)
+- Multi-filter pets page (type, city, vaccination, sterilization, etc.)
+
+### AI Recommendation
+- Attribute-based scoring using city, pet type, health status, and description
+- Supports natural language preference input
+
+### Analytics
+- Adoption rate (adopted vs available)
+- Pets by type
+- Pets by city (Tamil Nadu focus)
+- Vaccination status
+- Age distribution
+
+### Real-Time
+- WebSocket broadcast on adoption updates
+
+### Extras
+- OpenAPI-generated Python SDK (`pet_sdk/`)
+- Setup and run automation scripts
+
+## Tamil Nadu Context
+
+The project is localized with realistic Tamil Nadu context:
+- Cities include `Chennai`, `Coimbatore`, `Madurai`, `Erode`, and `Salem`
+- Filters, analytics labels, and seeded/normalized data reflect these locations
+- Phone numbers are normalized with `+91` format for pet contact records
 
 ## Tech Stack
 
-- Backend: FastAPI, SQLAlchemy, SQLite, Alembic, Pytest
-- Frontend: React (Vite), Axios, Chart.js (`react-chartjs-2`)
-- AI/RAG: ChromaDB vector store + LLM-generated explanation (OpenAI-compatible API)
-- SDK: OpenAPI Generator CLI (Python client)
-- Automation: `setupdev.bat`, `runapplication.bat`
+### Backend
+- FastAPI
+- SQLAlchemy
+- SQLite
+- Alembic
+- Pytest
 
-## Architecture Overview
+### Frontend
+- React (Vite)
+- Axios
+- React Router
+- Chart.js (`react-chartjs-2`)
 
-FurFinds follows a layered architecture:
+### Auth
+- JWT (`pyjwt`)
+- `bcrypt`
 
-- API Layer (`routers/`): HTTP/WebSocket endpoints and request validation
-- Domain/Data Access Layer (`crud.py`): persistence and business logic
-- Data Layer (`models.py`, `database.py`, Alembic): schema + DB sessions + migrations
-- AI Layer (`ai_recommender.py`): vector retrieval + LLM reasoning for recommendations
-- Client Layer (`frontend/`): interactive UI with REST + WebSocket integration
-- Integration Layer (`pet_sdk/`): generated Python SDK from OpenAPI schema
+## Project Structure
 
-### High-Level Flow
+```text
+FurFinds/
+  main.py, models.py, schemas.py, crud.py, ...
+  routers/                    # API route modules
+  alembic/                    # DB migrations
+  tests/                      # backend tests
+  frontend/                   # React app
+  pet_sdk/                    # generated Python SDK
+  setupdev.bat                # setup script
+  runapplication.bat          # full app launcher
+```
 
-1. Frontend calls FastAPI endpoints (`/pets`, `/recommend`, `/analytics`)
-2. Backend executes CRUD through SQLAlchemy sessions
-3. On adoption, backend broadcasts event to `/ws` clients
-4. Recommendation requests are processed via ChromaDB retrieval and LLM explanation generation
-5. Frontend updates state in real time and visualizes analytics
+Logical grouping:
+- `backend/` -> implemented at repository root (`main.py`, `routers/`, `models.py`, etc.)
+- `frontend/` -> React UI
+- `alembic/` -> migration history
+- `tests/` -> test suite
+- `pet_sdk/` -> generated client SDK
+- `scripts/` -> represented by root batch scripts
 
-## Setup Instructions
+## How To Run
 
-### Prerequisites
+### 1) Clone
 
-- Python 3.9+
-- Node.js + npm
-- Windows environment (batch scripts provided)
+```bash
+git clone <repo_url>
+cd FurFinds
+```
 
-### Option A: One-command setup (recommended)
+### 2) Setup (recommended)
 
 ```bat
 setupdev.bat
 ```
 
-What it does:
-1. Creates `.venv`
-2. Installs backend dependencies
-3. Runs `alembic upgrade head`
-4. Installs frontend dependencies
+This installs backend and frontend dependencies and runs migrations.  
+Database files are not required in git; migrations recreate schema after clone.
 
-### Run the full application
+### 3) Run Entire Application
 
 ```bat
 runapplication.bat
 ```
 
-Starts:
-- Backend: `http://127.0.0.1:8000`
-- Frontend: `http://127.0.0.1:5173`
+Starts backend and frontend in separate terminal windows.
 
-### Manual startup (optional)
+## Run Modes (Clear Options)
 
-Backend:
+### Backend Only
+
 ```bat
 call .venv\Scripts\activate.bat
-python -m uvicorn main:app --reload
+python -m uvicorn --app-dir . main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Frontend:
+### Frontend Only
+
 ```bat
 cd frontend
-npm run dev
+npm run dev -- --host 127.0.0.1 --port 5173
 ```
 
-### Frontend environment configuration
+### Full App (Single Command)
 
-Backend URLs are configurable from `frontend/.env` (see `frontend/.env.example`):
+```bat
+runapplication.bat
+```
 
-- `VITE_API_BASE_URL` (default: `http://127.0.0.1:8000`)
-- `VITE_WS_BASE_URL` (optional, auto-derived from API URL if omitted)
+## Access URLs
 
-## API Documentation
+- Frontend: `http://127.0.0.1:5173`
+- Backend docs: `http://127.0.0.1:8000/docs`
+- OpenAPI schema: `http://127.0.0.1:8000/openapi.json`
 
-Base URL: `http://127.0.0.1:8000`  
-Interactive docs: `http://127.0.0.1:8000/docs`
+## Frontend Environment Configuration
 
-### Core Pet Endpoints
+Use `frontend/.env` (copy from `frontend/.env.example`):
+- `VITE_API_BASE_URL` (default `http://127.0.0.1:8000`)
+- `VITE_WS_BASE_URL` (optional; auto-derived when omitted)
 
-- `POST /pets/` - create a pet
-- `GET /pets/` - list pets
-- `POST /pets/{id}/adopt` - adopt a pet
-  - `400` if already adopted
-  - `404` if pet not found
+## Admin Login
 
-### AI Recommendation Endpoints
+- Email: [admin@furfinds.com](mailto:admin@furfinds.com)
+- Password: `Admin@123`
 
+Notes:
+- Admin user is pre-seeded via Alembic migration
+- Normal users can register through `/auth/register`
+
+## API Overview
+
+Core endpoints:
+- `POST /auth/register`
+- `POST /auth/login`
+- `GET /pets/`
+- `POST /pets/`
+- `POST /pets/{id}/adopt`
+
+Useful extras:
+- `POST /pets/recommend`
 - `POST /recommend`
-  - Input:
-    ```json
-    { "preference_text": "small pet for apartment", "top_k": 3 }
-    ```
-  - Output:
-    ```json
-    {
-      "recommendations": [{ "id": 1, "name": "Coco", "type": "Rabbit", "adopted": false }],
-      "explanation": "..."
-    }
-    ```
-
-- `POST /pets/recommend` (compatible variant used by existing frontend flow)
-
-### Analytics Endpoint
-
 - `GET /analytics`
-  - Output:
-    ```json
-    { "total_pets": 10, "adopted_count": 4, "adoption_rate": 0.4 }
-    ```
-
-### Real-Time Endpoint
-
+- `GET /admin/users` (admin only)
 - `WS /ws`
-  - Broadcast event on adoption:
-    ```json
-    {
-      "event": "pet_adopted",
-      "pet": { "id": 5, "name": "Luna", "type": "Cat", "adopted": true }
-    }
-    ```
 
-## SDK Usage (Python)
-
-The generated Python SDK lives in `pet_sdk/`.
-
-### Run example script
-
-```bat
-python pet_sdk/example_usage.py
+Filter query example:
+```http
+GET /pets/?type=Dog&city=Coimbatore&vaccinated=true
 ```
-
-The example demonstrates:
-- listing pets
-- creating a pet when needed
-- adopting a pet
-
-### Regenerate SDK (if API changes)
-
-1. Export OpenAPI schema:
-```bat
-python -c "import json; from main import app; open('openapi.json','w',encoding='utf-8').write(json.dumps(app.openapi(), indent=2))"
-```
-
-2. Generate SDK:
-```bat
-npx @openapitools/openapi-generator-cli generate -i openapi.json -g python -o pet_sdk
-```
-
-## AI Feature Explanation (RAG)
-
-FurFinds includes a lightweight retrieval-augmented recommendation pipeline:
-
-1. User submits natural language preference text (for example: "small pet for apartment")
-2. Backend creates/uses vector embeddings for available pets
-3. ChromaDB retrieves the most relevant pets (`top_k`)
-4. Backend generates a plain-language explanation using an LLM
-5. If no LLM credentials are configured, the system returns a deterministic fallback explanation
-
-### Optional LLM configuration
-
-Set environment variables to enable generated explanations:
-- `OPENAI_API_KEY`
-- `OPENAI_MODEL` (optional, default is set in code)
-- `OPENAI_API_URL` (optional, OpenAI-compatible endpoint)
-
-### Optional CORS configuration
-
-For local development, FurFinds accepts `localhost` and `127.0.0.1` origins across ports.
-If you need to override explicitly, set:
-
-- `CORS_ORIGINS` as comma-separated origins (example: `http://localhost:5173,http://127.0.0.1:5173`)
 
 ## Testing
 
-Run backend tests:
+```bash
+pytest
+```
+
+or
 
 ```bat
 python -m pytest -q
 ```
 
-Coverage includes:
-- pet CRUD behavior
-- adoption business rules
-- recommendation endpoints
-- analytics endpoint
+## Troubleshooting
 
-## Recruiter Notes
+If full launcher has issues, run services manually:
 
-This project demonstrates:
-- Full-stack product thinking (API + frontend + UX)
-- Production-minded backend practices (migrations, validation, tests)
-- AI integration beyond prompt-only usage (retrieval + reasoning)
-- Real-time systems integration with WebSockets
-- Developer experience tooling (automation scripts, generated SDK, docs)
+Backend:
+```bat
+call .venv\Scripts\activate.bat
+python -m uvicorn --app-dir . main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Frontend:
+```bat
+cd frontend
+npm install
+npm run dev -- --host 127.0.0.1 --port 5173
+```
+
+Re-run migrations:
+```bat
+call .venv\Scripts\activate.bat
+python -m alembic upgrade head
+```
+
+## Development Note
+
+This project was designed and implemented end-to-end, covering backend APIs, database design/migrations, authentication/authorization, frontend UX, analytics, AI recommendation logic, and system integration.
+
+## Future Improvements
+
+- Expand recommendation to full RAG pipeline with richer retrieval/ranking
+- Production-grade auth hardening (cookies, refresh tokens, stricter session controls)
+- Containerized/cloud deployment pipeline (Docker + CI/CD + hosted DB)

@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+
+# Databases and local runtime artifacts
+*.db
+*.sqlite3
+.chroma/
+
+# Node / React
+node_modules/
+frontend/node_modules/
+dist/
+build/
+frontend/dist/
+
+# Environment and logs
+.env
+.env.*
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# SDK local caches
+pet_sdk/.pytest_cache/
+pet_sdk/**/__pycache__/
+
+# IDE
+.vscode/
