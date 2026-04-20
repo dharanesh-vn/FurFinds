@@ -1,0 +1,158 @@
+.app {
+  width: min(760px, 92%);
+  margin: 0 auto;
+  padding: 48px 0 60px;
+}
+
+.hero {
+  margin-bottom: 24px;
+}
+
+.hero h1 {
+  margin: 8px 0 0;
+  color: #ff6a00;
+  font-size: 2.4rem;
+}
+
+.tagline {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #ff8f3f;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #ffd8bd;
+  border-radius: 16px;
+  box-shadow: 0 12px 24px rgba(255, 106, 0, 0.08);
+  padding: 20px;
+}
+
+.create-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.field-input {
+  border: 1px solid #ffd8bd;
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: 0.95rem;
+}
+
+.field-input:focus {
+  outline: 2px solid #ffb17e;
+  border-color: #ffb17e;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.header-row h2 {
+  margin: 0;
+  color: #1f2937;
+}
+
+.refresh-button,
+.adopt-button {
+  border: none;
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.refresh-button {
+  background: #fff2e8;
+  color: #d04c00;
+}
+
+.adopt-button {
+  background: #ff6a00;
+  color: #fff;
+}
+
+.refresh-button:hover,
+.adopt-button:hover {
+  transform: translateY(-1px);
+}
+
+.adopt-button:disabled {
+  background: #ffd8bd;
+  color: #9b4b1d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.error-text {
+  margin: 8px 0 14px;
+  color: #b42318;
+}
+
+.helper-text {
+  color: #6b7280;
+  margin: 8px 0;
+}
+
+.pet-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: grid;
+  gap: 10px;
+}
+
+.pet-item {
+  border: 1px solid #ffe5d2;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fffaf6;
+}
+
+.pet-item h3 {
+  margin: 0 0 4px;
+  color: #111827;
+}
+
+.pet-meta {
+  margin: 0;
+  color: #6b7280;
+}
+
+.status {
+  margin: 6px 0 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.status.open {
+  color: #0f766e;
+}
+
+.status.adopted {
+  color: #9a3412;
+}
+
+@media (max-width: 600px) {
+  .create-form {
+    grid-template-columns: 1fr;
+  }
+
+  .pet-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
