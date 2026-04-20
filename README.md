@@ -85,6 +85,13 @@ cd frontend
 npm run dev
 ```
 
+### Frontend environment configuration
+
+Backend URLs are configurable from `frontend/.env` (see `frontend/.env.example`):
+
+- `VITE_API_BASE_URL` (default: `http://127.0.0.1:8000`)
+- `VITE_WS_BASE_URL` (optional, auto-derived from API URL if omitted)
+
 ## API Documentation
 
 Base URL: `http://127.0.0.1:8000`  
@@ -177,6 +184,13 @@ Set environment variables to enable generated explanations:
 - `OPENAI_API_KEY`
 - `OPENAI_MODEL` (optional, default is set in code)
 - `OPENAI_API_URL` (optional, OpenAI-compatible endpoint)
+
+### Optional CORS configuration
+
+For local development, FurFinds accepts `localhost` and `127.0.0.1` origins across ports.
+If you need to override explicitly, set:
+
+- `CORS_ORIGINS` as comma-separated origins (example: `http://localhost:5173,http://127.0.0.1:5173`)
 
 ## Testing
 

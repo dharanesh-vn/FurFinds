@@ -53,6 +53,30 @@ def auth_headers(client: TestClient, email: str = "user@mail.com", password: str
     return {"Authorization": f"Bearer {token}"}
 
 
+def sample_pet_payload(
+    name: str,
+    pet_type: str,
+    breed: str = "Mixed Breed",
+    city: str = "Chennai",
+) -> dict:
+    return {
+        "name": name,
+        "type": pet_type,
+        "breed": breed,
+        "age": "Adult",
+        "gender": "Male",
+        "vaccinated": True,
+        "sterilized": True,
+        "description": f"{name} is friendly and playful.",
+        "image_url": "https://placehold.co/200x120",
+        "shelter_name": "FurFinds Shelter",
+        "contact_person": "Rescue Team",
+        "phone": "+919876543210",
+        "email": "shelter@furfinds.com",
+        "city": city,
+    }
+
+
 def test_register_and_login(client: TestClient) -> None:
     register_response = client.post(
         "/auth/register",
@@ -89,20 +113,26 @@ def test_register_and_login(client: TestClient) -> None:
 
 def test_create_pet(client: TestClient) -> None:
     headers = auth_headers(client)
-    response = client.post("/pets/", json={"name": "Bruno", "type": "Dog"}, headers=headers)
+    response = client.post(
+        "/pets/",
+        json=sample_pet_payload(name="Bruno", pet_type="Dog", breed="Labrador Mix"),
+        headers=headers,
+    )
 
     assert response.status_code == 201
     body = response.json()
     assert body["id"] == 1
     assert body["name"] == "Bruno"
     assert body["type"] == "Dog"
+    assert body["breed"] == "Labrador Mix"
+    assert body["city"] == "Chennai"
     assert body["adopted"] is False
 
 
 def test_get_pets(client: TestClient) -> None:
     headers = auth_headers(client)
-    client.post("/pets/", json={"name": "Bruno", "type": "Dog"}, headers=headers)
-    client.post("/pets/", json={"name": "Luna", "type": "Cat"}, headers=headers)
+    client.post("/pets/", json=sample_pet_payload(name="Bruno", pet_type="Dog"), headers=headers)
+    client.post("/pets/", json=sample_pet_payload(name="Luna", pet_type="Cat"), headers=headers)
 
     response = client.get("/pets/", headers=headers)
 
@@ -113,9 +143,30 @@ def test_get_pets(client: TestClient) -> None:
     assert body[1]["name"] == "Luna"
 
 
+def test_get_pets_with_filters(client: TestClient) -> None:
+    headers = auth_headers(client)
+    client.post(
+        "/pets/",
+        json=sample_pet_payload(name="Coco", pet_type="Cat", breed="Persian", city="Coimbatore"),
+        headers=headers,
+    )
+    client.post(
+        "/pets/",
+        json=sample_pet_payload(name="Max", pet_type="Dog", breed="Indie Mix", city="Chennai"),
+        headers=headers,
+    )
+
+    response = client.get("/pets/?type=Cat&city=Coimbatore&vaccinated=true", headers=headers)
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body) == 1
+    assert body[0]["name"] == "Coco"
+    assert body[0]["city"] == "Coimbatore"
+
+
 def test_adopt_pet_successfully(client: TestClient) -> None:
     headers = auth_headers(client)
-    create_response = client.post("/pets/", json={"name": "Bruno", "type": "Dog"}, headers=headers)
+    create_response = client.post("/pets/", json=sample_pet_payload(name="Bruno", pet_type="Dog"), headers=headers)
     pet_id = create_response.json()["id"]
 
     response = client.post(f"/pets/{pet_id}/adopt", headers=headers)
@@ -128,7 +179,7 @@ def test_adopt_pet_successfully(client: TestClient) -> None:
 
 def test_prevent_adopting_already_adopted_pet(client: TestClient) -> None:
     headers = auth_headers(client)
-    create_response = client.post("/pets/", json={"name": "Bruno", "type": "Dog"}, headers=headers)
+    create_response = client.post("/pets/", json=sample_pet_payload(name="Bruno", pet_type="Dog"), headers=headers)
     pet_id = create_response.json()["id"]
     client.post(f"/pets/{pet_id}/adopt", headers=headers)
 
@@ -148,8 +199,16 @@ def test_adopt_nonexistent_pet_returns_404(client: TestClient) -> None:
 
 def test_recommend_pets_returns_matches_and_explanation(client: TestClient) -> None:
     headers = auth_headers(client)
-    client.post("/pets/", json={"name": "Nibbles", "type": "Rabbit"}, headers=headers)
-    client.post("/pets/", json={"name": "Rocky", "type": "Dog"}, headers=headers)
+    client.post(
+        "/pets/",
+        json=sample_pet_payload(name="Nibbles", pet_type="Rabbit", breed="Mini Lop"),
+        headers=headers,
+    )
+    client.post(
+        "/pets/",
+        json=sample_pet_payload(name="Rocky", pet_type="Dog", breed="Indie Mix"),
+        headers=headers,
+    )
 
     response = client.post(
         "/pets/recommend",
@@ -167,8 +226,8 @@ def test_recommend_pets_returns_matches_and_explanation(client: TestClient) -> N
 
 def test_root_recommend_endpoint_returns_matches_and_explanation(client: TestClient) -> None:
     headers = auth_headers(client)
-    client.post("/pets/", json={"name": "Peanut", "type": "Rabbit"}, headers=headers)
-    client.post("/pets/", json={"name": "Bolt", "type": "Dog"}, headers=headers)
+    client.post("/pets/", json=sample_pet_payload(name="Peanut", pet_type="Rabbit"), headers=headers)
+    client.post("/pets/", json=sample_pet_payload(name="Bolt", pet_type="Dog"), headers=headers)
 
     response = client.post(
         "/recommend",
@@ -185,8 +244,8 @@ def test_root_recommend_endpoint_returns_matches_and_explanation(client: TestCli
 
 def test_analytics_endpoint_returns_totals_and_rate(client: TestClient) -> None:
     headers = auth_headers(client)
-    client.post("/pets/", json={"name": "Bruno", "type": "Dog"}, headers=headers)
-    luna = client.post("/pets/", json={"name": "Luna", "type": "Cat"}, headers=headers).json()
+    client.post("/pets/", json=sample_pet_payload(name="Bruno", pet_type="Dog"), headers=headers)
+    luna = client.post("/pets/", json=sample_pet_payload(name="Luna", pet_type="Cat"), headers=headers).json()
     client.post(f"/pets/{luna['id']}/adopt", headers=headers)
 
     response = client.get("/analytics", headers=headers)
@@ -196,6 +255,10 @@ def test_analytics_endpoint_returns_totals_and_rate(client: TestClient) -> None:
     assert body["total_pets"] == 2
     assert body["adopted_count"] == 1
     assert body["adoption_rate"] == 0.5
+    assert "Dog" in body["by_type"]
+    assert "Cat" in body["by_type"]
+    assert "Chennai" in body["by_city"]
+    assert "vaccinated" in body["vaccination"]
 
 
 def test_admin_users_requires_admin_role(client: TestClient) -> None:

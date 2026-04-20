@@ -26,7 +26,7 @@ function AIRecommendation() {
         <input
           value={preferences}
           onChange={(e) => setPreferences(e.target.value)}
-          placeholder="small pet for apartment"
+          placeholder="I live in Coimbatore, want a low maintenance pet for apartment"
         />
         <button type="submit">Recommend</button>
       </form>
@@ -36,8 +36,16 @@ function AIRecommendation() {
         {results.map((pet) => (
           <li className="pet-item" key={pet.id}>
             <div>
-              <h3>{pet.name}</h3>
-              <p className="pet-meta">{pet.type}</p>
+              <h3>
+                {pet.name} - {pet.breed}
+              </h3>
+              <p className="pet-meta">
+                {pet.type} | {pet.age} | {pet.gender}
+              </p>
+              <p className="pet-meta">
+                {pet.city} | {pet.vaccinated ? "Vaccinated" : "Not vaccinated"} /{" "}
+                {pet.sterilized ? "Sterilized" : "Not sterilized"}
+              </p>
             </div>
           </li>
         ))}

@@ -24,10 +24,26 @@ def add_pet(
 
 @router.get("/", response_model=list[schemas.PetResponse])
 def list_pets(
+    type: str | None = None,
+    breed: str | None = None,
+    age: str | None = None,
+    gender: str | None = None,
+    vaccinated: bool | None = None,
+    sterilized: bool | None = None,
+    city: str | None = None,
     db: Session = Depends(get_db),
     _current_user: models.User = Depends(get_current_user),
 ):
-    return crud.get_all_pets(db=db)
+    return crud.get_filtered_pets(
+        db=db,
+        pet_type=type,
+        breed=breed,
+        age=age,
+        gender=gender,
+        vaccinated=vaccinated,
+        sterilized=sterilized,
+        city=city,
+    )
 
 
 @router.post("/{id}/adopt", response_model=schemas.PetResponse)

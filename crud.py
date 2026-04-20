@@ -9,7 +9,15 @@ class PetAlreadyAdoptedError(Exception):
 
 
 def create_pet(db: Session, pet: schemas.PetCreate):
-    db_pet = models.Pet(**pet.model_dump())
+    pet_data = pet.model_dump()
+    pet_data["shelter_name"] = pet_data.get("shelter_name") or "FurFinds Shelter"
+    pet_data["contact_person"] = pet_data.get("contact_person") or "Rescue Team"
+    if pet_data.get("phone"):
+        phone = str(pet_data["phone"]).replace(" ", "")
+        if not phone.startswith("+91"):
+            phone = f"+91{phone.lstrip('+')}"
+        pet_data["phone"] = phone
+    db_pet = models.Pet(**pet_data)
     db.add(db_pet)
     db.commit()
     db.refresh(db_pet)
@@ -18,6 +26,34 @@ def create_pet(db: Session, pet: schemas.PetCreate):
 
 def get_all_pets(db: Session):
     return db.query(models.Pet).all()
+
+
+def get_filtered_pets(
+    db: Session,
+    pet_type: str | None = None,
+    breed: str | None = None,
+    age: str | None = None,
+    gender: str | None = None,
+    vaccinated: bool | None = None,
+    sterilized: bool | None = None,
+    city: str | None = None,
+):
+    query = db.query(models.Pet)
+    if pet_type:
+        query = query.filter(models.Pet.type == pet_type)
+    if breed:
+        query = query.filter(models.Pet.breed.ilike(f"%{breed}%"))
+    if age:
+        query = query.filter(models.Pet.age == age)
+    if gender:
+        query = query.filter(models.Pet.gender == gender)
+    if vaccinated is not None:
+        query = query.filter(models.Pet.vaccinated == vaccinated)
+    if sterilized is not None:
+        query = query.filter(models.Pet.sterilized == sterilized)
+    if city:
+        query = query.filter(models.Pet.city == city)
+    return query.all()
 
 
 def adopt_pet(db: Session, pet_id: int):

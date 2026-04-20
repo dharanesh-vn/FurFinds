@@ -26,8 +26,14 @@ if errorlevel 1 (
     exit /b 1
 )
 
+for /f "tokens=5" %%p in ('netstat -ano ^| findstr /R /C:":8000 .*LISTENING"') do (
+    echo Port 8000 is already in use by PID %%p.
+    echo Close that process and run this script again so FurFinds starts correctly.
+    exit /b 1
+)
+
 echo Launching FastAPI backend on http://127.0.0.1:8000 ...
-start "FurFinds Backend" cmd /k "cd /d %~dp0 && call .venv\Scripts\activate.bat && python -m uvicorn main:app --reload"
+start "FurFinds Backend" cmd /k "cd /d %~dp0 && call .venv\Scripts\activate.bat && python -m uvicorn --app-dir ""%~dp0"" main:app --reload --host 127.0.0.1 --port 8000"
 
 echo Launching React frontend on http://localhost:5173 ...
 start "FurFinds Frontend" cmd /k "cd /d %~dp0frontend && call npm run dev"
