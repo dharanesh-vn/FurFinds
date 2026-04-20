@@ -2,6 +2,11 @@ import axios from "axios";
 
 const normalizeBaseUrl = (value) => value?.trim().replace(/\/+$/, "");
 
+export const extractErrorMessage = (err, fallback = "Something went wrong") => {
+  const detail = err?.response?.data?.detail;
+  return typeof detail === "string" ? detail : fallback;
+};
+
 export const API_BASE_URL =
   normalizeBaseUrl(import.meta.env.VITE_API_BASE_URL) || "http://127.0.0.1:8000";
 

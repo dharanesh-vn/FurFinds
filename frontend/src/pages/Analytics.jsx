@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Bar, Doughnut } from "react-chartjs-2";
 import { ArcElement, BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Tooltip } from "chart.js";
-import { getAnalytics } from "../api";
+import { extractErrorMessage, getAnalytics } from "../api";
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -22,8 +22,9 @@ function Analytics() {
       try {
         const response = await getAnalytics();
         setData(response.data);
+        setError("");
       } catch (err) {
-        setError(err?.response?.data?.detail || "Failed to load analytics.");
+        setError(extractErrorMessage(err, "Failed to load analytics."));
       }
     };
     load();

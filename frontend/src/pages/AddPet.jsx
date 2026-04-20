@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createPet } from "../api";
+import { createPet, extractErrorMessage } from "../api";
 
 const initialForm = {
   name: "",
@@ -54,7 +54,7 @@ function AddPet() {
       setMessage(`Pet added: ${response.data.name}`);
       setForm(initialForm);
     } catch (err) {
-      setError(err?.response?.data?.detail || "Unable to add pet.");
+      setError(extractErrorMessage(err, "Unable to add pet."));
     }
   };
 

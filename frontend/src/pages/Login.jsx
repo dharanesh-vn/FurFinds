@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "../api";
+import { extractErrorMessage, loginUser } from "../api";
 import { decodeTokenPayload } from "../auth";
 
 function Login() {
@@ -16,14 +16,14 @@ function Login() {
       const response = await loginUser({ email, password });
       const token = response.data.access_token;
       localStorage.setItem("token", token);
-      const payload = decodeTokenPayload(token);
-      if (payload?.role === "admin") {
+      const role = response.data.role || decodeTokenPayload(token)?.role;
+      if (role === "admin") {
         navigate("/admin");
       } else {
         navigate("/dashboard");
       }
     } catch (err) {
-      setError(err?.response?.data?.detail || "Login failed.");
+      setError(extractErrorMessage(err, "Login failed."));
     }
   };
 

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { adoptPet, getPets, WS_BASE_URL } from "../api";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { adoptPet, extractErrorMessage, getPets, WS_BASE_URL } from "../api";
 
 const CITY_OPTIONS = ["Chennai", "Coimbatore", "Madurai", "Erode", "Salem"];
 
@@ -18,7 +18,7 @@ function Pets() {
   });
   const [error, setError] = useState("");
 
-  const loadPets = async (activeFilters = filters) => {
+  const loadPets = useCallback(async (activeFilters = filters) => {
     try {
       const params = {};
       if (activeFilters.type) params.type = activeFilters.type;
@@ -30,14 +30,18 @@ function Pets() {
       if (activeFilters.sterilized) params.sterilized = activeFilters.sterilized === "yes";
       const response = await getPets(params);
       setPets(response.data);
+      setError("");
     } catch (err) {
-      setError(err?.response?.data?.detail || "Failed to load pets.");
+      setError(extractErrorMessage(err, "Failed to load pets."));
     }
-  };
+  }, [filters]);
 
   useEffect(() => {
-    loadPets();
-  }, [filters]);
+    const timeoutId = setTimeout(() => {
+      loadPets();
+    }, 0);
+    return () => clearTimeout(timeoutId);
+  }, [loadPets]);
 
   useEffect(() => {
     const socket = new WebSocket(`${WS_BASE_URL}/ws`);
@@ -62,24 +66,29 @@ function Pets() {
     try {
       await adoptPet(id);
       setPets((current) => current.map((pet) => (pet.id === id ? { ...pet, adopted: true } : pet)));
+      setError("");
     } catch (err) {
-      setError(err?.response?.data?.detail || "Unable to adopt pet.");
+      setError(extractErrorMessage(err, "Unable to adopt pet."));
     }
   };
 
   const filteredPets = useMemo(() => {
     const lowerQuery = query.toLowerCase();
+    const toSearchable = (value) => String(value ?? "").toLowerCase();
     return pets.filter((pet) => {
       const matchesText =
-        pet.name.toLowerCase().includes(lowerQuery) ||
-        pet.type.toLowerCase().includes(lowerQuery) ||
-        pet.breed.toLowerCase().includes(lowerQuery) ||
-        pet.city.toLowerCase().includes(lowerQuery);
+        toSearchable(pet.name).includes(lowerQuery) ||
+        toSearchable(pet.type).includes(lowerQuery) ||
+        toSearchable(pet.breed).includes(lowerQuery) ||
+        toSearchable(pet.city).includes(lowerQuery);
       const matchesStatus =
         statusFilter === "all" || (statusFilter === "adopted" ? pet.adopted : !pet.adopted);
       return matchesText && matchesStatus;
     });
   }, [pets, query, statusFilter]);
+
+  const availablePets = useMemo(() => filteredPets.filter((pet) => !pet.adopted), [filteredPets]);
+  const adoptedPets = useMemo(() => filteredPets.filter((pet) => pet.adopted), [filteredPets]);
 
   const clearFilters = () => {
     const cleared = {
@@ -94,6 +103,45 @@ function Pets() {
     setFilters(cleared);
     setStatusFilter("all");
     setQuery("");
+  };
+
+  const renderPetItem = (pet, variant = "available") => {
+    const descriptionPreview =
+      pet.description && pet.description.length > 120
+        ? `${pet.description.slice(0, 117)}...`
+        : pet.description;
+
+    const isAdopted = variant === "adopted";
+
+    return (
+      <li className={`pet-item pet-card ${isAdopted ? "pet-item-adopted" : "pet-item-available"}`} key={pet.id}>
+        <img
+          className="pet-image"
+          src={pet.image_url || "https://placehold.co/220x140?text=FurFinds"}
+          alt={pet.name}
+        />
+        <div className="pet-content">
+          <h3>
+            {pet.name} - {pet.type}
+          </h3>
+          <p className="pet-meta">
+            {pet.breed} | {pet.age} | {pet.gender}
+          </p>
+          <p className="pet-meta">Location: {pet.city}</p>
+          <p className="pet-meta">
+            Health: {pet.vaccinated ? "Vaccinated" : "Not vaccinated"} /{" "}
+            {pet.sterilized ? "Sterilized" : "Not sterilized"}
+          </p>
+          {descriptionPreview ? <p className="pet-meta">{descriptionPreview}</p> : null}
+          <p className="pet-meta">
+            Shelter: {pet.shelter_name} | Contact: {pet.contact_person}
+          </p>
+        </div>
+        <button disabled={isAdopted || pet.adopted} onClick={() => adopt(pet.id)} type="button">
+          {isAdopted || pet.adopted ? "Adopted" : "Adopt"}
+        </button>
+      </li>
+    );
   };
 
   return (
@@ -187,44 +235,19 @@ function Pets() {
         </button>
       </div>
       {error ? <p className="error-text">{error}</p> : null}
-      <ul className="pet-list">
-        {filteredPets.map((pet) => {
-          const descriptionPreview =
-            pet.description && pet.description.length > 120
-              ? `${pet.description.slice(0, 117)}...`
-              : pet.description;
-
-          return (
-            <li className="pet-item pet-card" key={pet.id}>
-              <img
-                className="pet-image"
-                src={pet.image_url || "https://placehold.co/220x140?text=FurFinds"}
-                alt={pet.name}
-              />
-              <div className="pet-content">
-                <h3>
-                  {pet.name} - {pet.type}
-                </h3>
-                <p className="pet-meta">
-                  {pet.breed} | {pet.age} | {pet.gender}
-                </p>
-                <p className="pet-meta">Location: {pet.city}</p>
-                <p className="pet-meta">
-                  Health: {pet.vaccinated ? "Vaccinated" : "Not vaccinated"} /{" "}
-                  {pet.sterilized ? "Sterilized" : "Not sterilized"}
-                </p>
-                {descriptionPreview ? <p className="pet-meta">{descriptionPreview}</p> : null}
-                <p className="pet-meta">
-                  Shelter: {pet.shelter_name} | Contact: {pet.contact_person}
-                </p>
-              </div>
-              <button disabled={pet.adopted} onClick={() => adopt(pet.id)} type="button">
-                {pet.adopted ? "Adopted" : "Adopt"}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+      {(statusFilter === "all" || statusFilter === "available") && (
+        <div className="pet-section available-section">
+          <h3 className="pet-section-title">Available Pets ({availablePets.length})</h3>
+          <ul className="pet-list">{availablePets.map((pet) => renderPetItem(pet, "available"))}</ul>
+        </div>
+      )}
+      {(statusFilter === "all" || statusFilter === "adopted") && (
+        <div className="pet-section adopted-section">
+          <h3 className="pet-section-title">Adopted Pets ({adoptedPets.length})</h3>
+          <ul className="pet-list">{adoptedPets.map((pet) => renderPetItem(pet, "adopted"))}</ul>
+        </div>
+      )}
+      {filteredPets.length === 0 ? <p className="helper-text">No pets found for current filters.</p> : null}
     </section>
   );
 }

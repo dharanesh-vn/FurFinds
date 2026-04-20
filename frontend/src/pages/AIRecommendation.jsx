@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { recommendPets } from "../api";
+import { extractErrorMessage, recommendPets } from "../api";
 
 function AIRecommendation() {
   const [preferences, setPreferences] = useState("");
@@ -15,7 +15,7 @@ function AIRecommendation() {
       setResults(response.data.recommendations);
       setExplanation(response.data.explanation);
     } catch (err) {
-      setError(err?.response?.data?.detail || "Recommendation failed.");
+      setError(extractErrorMessage(err, "Recommendation failed."));
     }
   };
 

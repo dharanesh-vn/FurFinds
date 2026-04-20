@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAdminUsers, getPets } from "../api";
+import { extractErrorMessage, getAdminUsers, getPets } from "../api";
 
 function Admin() {
   const [users, setUsers] = useState([]);
@@ -12,8 +12,9 @@ function Admin() {
         const [usersResponse, petsResponse] = await Promise.all([getAdminUsers(), getPets()]);
         setUsers(usersResponse.data);
         setPets(petsResponse.data);
+        setError("");
       } catch (err) {
-        setError(err?.response?.data?.detail || "Admin data could not be loaded.");
+        setError(extractErrorMessage(err, "Admin data could not be loaded."));
       }
     };
     load();

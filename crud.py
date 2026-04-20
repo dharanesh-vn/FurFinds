@@ -40,19 +40,19 @@ def get_filtered_pets(
 ):
     query = db.query(models.Pet)
     if pet_type:
-        query = query.filter(models.Pet.type == pet_type)
+        query = query.filter(models.Pet.type.ilike(pet_type.strip()))
     if breed:
-        query = query.filter(models.Pet.breed.ilike(f"%{breed}%"))
+        query = query.filter(models.Pet.breed.ilike(f"%{breed.strip()}%"))
     if age:
-        query = query.filter(models.Pet.age == age)
+        query = query.filter(models.Pet.age.ilike(age.strip()))
     if gender:
-        query = query.filter(models.Pet.gender == gender)
+        query = query.filter(models.Pet.gender.ilike(gender.strip()))
     if vaccinated is not None:
         query = query.filter(models.Pet.vaccinated == vaccinated)
     if sterilized is not None:
         query = query.filter(models.Pet.sterilized == sterilized)
     if city:
-        query = query.filter(models.Pet.city == city)
+        query = query.filter(models.Pet.city.ilike(city.strip()))
     return query.all()
 
 

@@ -8,7 +8,10 @@ import urllib.request
 from math import sqrt
 from typing import Iterable
 
-import chromadb
+try:
+    import chromadb
+except ImportError:
+    chromadb = None
 
 
 def _normalize(vector: list[float]) -> list[float]:
@@ -76,10 +79,20 @@ def _call_llm(preferences: str, recommendations: list[dict[str, str]]) -> str | 
 
 class PetRecommendationService:
     def __init__(self) -> None:
-        self.client = chromadb.PersistentClient(path=".chroma")
-        self.collection = self.client.get_or_create_collection(name="furfinds_pets")
+        self.collection = None
+        if chromadb is None:
+            return
+        try:
+            client = chromadb.PersistentClient(path=".chroma")
+            self.collection = client.get_or_create_collection(name="furfinds_pets")
+        except Exception:
+            # Keep recommendations available even when vector store is not usable.
+            self.collection = None
 
     def _upsert(self, pets: Iterable[object]) -> None:
+        if self.collection is None:
+            return
+
         ids: list[str] = []
         embeddings: list[list[float]] = []
         documents: list[str] = []
@@ -173,7 +186,7 @@ class PetRecommendationService:
 
         scored.sort(key=lambda item: item[0], reverse=True)
         recommendations = [pet for score, pet in scored if score > 0][: min(top_k, len(available_pets))]
-        if not recommendations:
+        if not recommendations and self.collection is not None:
             # Keep semantic fallback to avoid empty or brittle responses.
             self._upsert(available_pets)
             query = self.collection.query(

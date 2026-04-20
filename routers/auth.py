@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 import models
 import schemas
@@ -24,7 +25,11 @@ def register(payload: schemas.UserRegister, db: Session = Depends(get_db)):
         role="user",
     )
     db.add(user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as exc:
+        db.rollback()
+        raise HTTPException(status_code=400, detail="User already exists") from exc
     db.refresh(user)
     return user
 
