@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+.env
 .venv/
 venv/
 env/
@@ -20,7 +21,6 @@ build/
 frontend/dist/
 
 # Environment and logs
-.env
 .env.*
 !.env.example
 !frontend/.env.example
@@ -40,6 +40,7 @@ htmlcov/
 # SDK local caches
 pet_sdk/.pytest_cache/
 pet_sdk/**/__pycache__/
+pet_sdk/__pycache__/
 
 # IDE
 .vscode/

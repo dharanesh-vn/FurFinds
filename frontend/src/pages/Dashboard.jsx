@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getAnalytics } from "../api";
+import { getStoredAuth } from "../auth";
 
 function Dashboard() {
   const [analytics, setAnalytics] = useState({ total_pets: 0, adopted_count: 0, adoption_rate: 0 });
+  const { displayName } = getStoredAuth();
 
   useEffect(() => {
     const load = async () => {
@@ -19,7 +21,9 @@ function Dashboard() {
 
   return (
     <section className="card">
+      <p className="welcome-text">Welcome, {displayName || "Pet Lover"}</p>
       <h2>Dashboard</h2>
+      <p className="helper-text">Track adoption momentum and jump quickly to key workflows.</p>
       <div className="stats-grid">
         <div className="stat-item">
           <h3>{analytics.total_pets}</h3>
@@ -35,10 +39,10 @@ function Dashboard() {
         </div>
       </div>
       <div className="quick-links">
-        <Link to="/pets">Pets</Link>
-        <Link to="/add-pet">Add Pet</Link>
-        <Link to="/analytics">Analytics</Link>
-        <Link to="/ai-recommendation">AI Recommendation</Link>
+        <Link className="button-link secondary" to="/pets">Pets</Link>
+        <Link className="button-link secondary" to="/add-pet">Add Pet</Link>
+        <Link className="button-link secondary" to="/analytics">Analytics</Link>
+        <Link className="button-link secondary" to="/ai-recommendation">AI Recommendation</Link>
       </div>
     </section>
   );

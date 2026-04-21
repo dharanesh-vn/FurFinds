@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { adoptPet, extractErrorMessage, getPets, WS_BASE_URL } from "../api";
 
-const CITY_OPTIONS = ["Chennai", "Coimbatore", "Madurai", "Erode", "Salem"];
+const CITY_OPTIONS = ["Chennai", "Coimbatore", "Madurai", "Erode", "Salem", "Trichy", "Karur", "Tiruppur"];
 
 function Pets() {
   const [pets, setPets] = useState([]);
@@ -114,30 +114,29 @@ function Pets() {
     const isAdopted = variant === "adopted";
 
     return (
-      <li className={`pet-item pet-card ${isAdopted ? "pet-item-adopted" : "pet-item-available"}`} key={pet.id}>
+      <li className={`pet-grid-card ${isAdopted ? "pet-item-adopted" : "pet-item-available"}`} key={pet.id}>
         <img
           className="pet-image"
-          src={pet.image_url || "https://placehold.co/220x140?text=FurFinds"}
+          src={pet.image_url || "https://placehold.co/600x340?text=FurFinds"}
           alt={pet.name}
         />
         <div className="pet-content">
-          <h3>
-            {pet.name} - {pet.type}
-          </h3>
-          <p className="pet-meta">
-            {pet.breed} | {pet.age} | {pet.gender}
-          </p>
+          <h3>{pet.name}</h3>
+          <p className="pet-meta">{pet.breed} ({pet.type})</p>
+          <p className="pet-meta">{pet.age} | {pet.gender}</p>
           <p className="pet-meta">Location: {pet.city}</p>
-          <p className="pet-meta">
-            Health: {pet.vaccinated ? "Vaccinated" : "Not vaccinated"} /{" "}
-            {pet.sterilized ? "Sterilized" : "Not sterilized"}
-          </p>
+          <div className="badge-row">
+            <span className={`badge ${pet.vaccinated ? "badge-positive" : "badge-muted"}`}>
+              {pet.vaccinated ? "Vaccinated" : "Not Vaccinated"}
+            </span>
+            <span className={`badge ${pet.sterilized ? "badge-positive" : "badge-muted"}`}>
+              {pet.sterilized ? "Sterilized" : "Not Sterilized"}
+            </span>
+          </div>
           {descriptionPreview ? <p className="pet-meta">{descriptionPreview}</p> : null}
-          <p className="pet-meta">
-            Shelter: {pet.shelter_name} | Contact: {pet.contact_person}
-          </p>
+          <p className="pet-meta">Shelter: {pet.shelter_name}</p>
         </div>
-        <button disabled={isAdopted || pet.adopted} onClick={() => adopt(pet.id)} type="button">
+        <button className="adopt-btn" disabled={isAdopted || pet.adopted} onClick={() => adopt(pet.id)} type="button">
           {isAdopted || pet.adopted ? "Adopted" : "Adopt"}
         </button>
       </li>
@@ -238,13 +237,13 @@ function Pets() {
       {(statusFilter === "all" || statusFilter === "available") && (
         <div className="pet-section available-section">
           <h3 className="pet-section-title">Available Pets ({availablePets.length})</h3>
-          <ul className="pet-list">{availablePets.map((pet) => renderPetItem(pet, "available"))}</ul>
+          <ul className="pet-grid">{availablePets.map((pet) => renderPetItem(pet, "available"))}</ul>
         </div>
       )}
       {(statusFilter === "all" || statusFilter === "adopted") && (
         <div className="pet-section adopted-section">
           <h3 className="pet-section-title">Adopted Pets ({adoptedPets.length})</h3>
-          <ul className="pet-list">{adoptedPets.map((pet) => renderPetItem(pet, "adopted"))}</ul>
+          <ul className="pet-grid">{adoptedPets.map((pet) => renderPetItem(pet, "adopted"))}</ul>
         </div>
       )}
       {filteredPets.length === 0 ? <p className="helper-text">No pets found for current filters.</p> : null}

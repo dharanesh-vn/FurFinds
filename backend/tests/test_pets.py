@@ -143,6 +143,53 @@ def test_get_pets(client: TestClient) -> None:
     assert body[1]["name"] == "Luna"
 
 
+def test_get_pet_by_id(client: TestClient) -> None:
+    headers = auth_headers(client)
+    created = client.post("/pets/", json=sample_pet_payload(name="Bella", pet_type="Dog"), headers=headers).json()
+
+    response = client.get(f"/pets/{created['id']}", headers=headers)
+
+    assert response.status_code == 200
+    assert response.json()["name"] == "Bella"
+
+
+def test_get_pet_by_invalid_id_returns_404(client: TestClient) -> None:
+    headers = auth_headers(client)
+    response = client.get("/pets/999", headers=headers)
+    assert response.status_code == 404
+
+
+def test_update_pet(client: TestClient) -> None:
+    headers = auth_headers(client)
+    created = client.post("/pets/", json=sample_pet_payload(name="Flash", pet_type="Cat"), headers=headers).json()
+    payload = sample_pet_payload(name="Flash Updated", pet_type="Cat", breed="Siamese", city="Madurai")
+
+    response = client.put(f"/pets/{created['id']}", json=payload, headers=headers)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["name"] == "Flash Updated"
+    assert body["breed"] == "Siamese"
+    assert body["city"] == "Madurai"
+
+
+def test_delete_pet(client: TestClient) -> None:
+    headers = auth_headers(client)
+    created = client.post("/pets/", json=sample_pet_payload(name="Ruby", pet_type="Rabbit"), headers=headers).json()
+
+    delete_response = client.delete(f"/pets/{created['id']}", headers=headers)
+    assert delete_response.status_code == 200
+
+    fetch_response = client.get(f"/pets/{created['id']}", headers=headers)
+    assert fetch_response.status_code == 404
+
+
+def test_delete_pet_invalid_id_returns_404(client: TestClient) -> None:
+    headers = auth_headers(client)
+    response = client.delete("/pets/999", headers=headers)
+    assert response.status_code == 404
+
+
 def test_get_pets_with_filters(client: TestClient) -> None:
     headers = auth_headers(client)
     client.post(

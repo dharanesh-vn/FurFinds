@@ -45,11 +45,13 @@ function Analytics() {
     datasets: [{ label: "Pets", data: Object.values(data.by_type || {}), backgroundColor: "#ff8f3f" }],
   };
   const cityChartData = {
-    labels: ["Chennai", "Coimbatore", "Madurai", "Erode", "Salem"],
+    labels: ["Chennai", "Coimbatore", "Madurai", "Erode", "Salem", "Trichy", "Karur", "Tiruppur"],
     datasets: [
       {
         label: "Pets",
-        data: ["Chennai", "Coimbatore", "Madurai", "Erode", "Salem"].map((city) => data.by_city?.[city] || 0),
+        data: ["Chennai", "Coimbatore", "Madurai", "Erode", "Salem", "Trichy", "Karur", "Tiruppur"].map(
+          (city) => data.by_city?.[city] || 0
+        ),
         backgroundColor: "#ffb075",
       },
     ],
@@ -71,29 +73,45 @@ function Analytics() {
   return (
     <section className="card">
       <h2>Analytics</h2>
-      <p>Total Pets: {data.total_pets}</p>
-      <p>Adopted Count: {data.adopted_count}</p>
-      <p>Adoption Rate: {(data.adoption_rate * 100).toFixed(1)}%</p>
+      <div className="stats-grid">
+        <div className="stat-item">
+          <h3>{data.total_pets}</h3>
+          <p>Total Pets</p>
+        </div>
+        <div className="stat-item">
+          <h3>{data.adopted_count}</h3>
+          <p>Adopted</p>
+        </div>
+        <div className="stat-item">
+          <h3>{(data.adoption_rate * 100).toFixed(1)}%</h3>
+          <p>Adoption Rate</p>
+        </div>
+      </div>
       {error ? <p className="error-text">{error}</p> : null}
       <div className="chart-grid">
-        <div className="chart-wrap">
+        <div className="chart-wrap card">
           <h3>Adoption Rate</h3>
+          <p className="helper-text">Share of adopted pets vs available pets.</p>
           <Doughnut data={adoptionChartData} />
         </div>
-        <div className="chart-wrap">
+        <div className="chart-wrap card">
           <h3>Pets by Type</h3>
+          <p className="helper-text">Distribution across dogs, cats, birds, and more.</p>
           <Bar data={typeChartData} />
         </div>
-        <div className="chart-wrap">
+        <div className="chart-wrap card">
           <h3>Pets by City (Tamil Nadu)</h3>
+          <p className="helper-text">City-level inventory for all supported locations.</p>
           <Bar data={cityChartData} />
         </div>
-        <div className="chart-wrap">
+        <div className="chart-wrap card">
           <h3>Vaccination Status</h3>
+          <p className="helper-text">Vaccinated vs non-vaccinated pets.</p>
           <Doughnut data={vaccinationChartData} />
         </div>
-        <div className="chart-wrap">
+        <div className="chart-wrap card">
           <h3>Age Distribution</h3>
+          <p className="helper-text">Age buckets currently represented in listings.</p>
           <Bar data={ageChartData} />
         </div>
       </div>

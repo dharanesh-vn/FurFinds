@@ -22,7 +22,8 @@ function AIRecommendation() {
   return (
     <section className="card">
       <h2>AI Recommendation</h2>
-      <form className="row" onSubmit={submit}>
+      <p className="helper-text">Describe your ideal companion and get tailored matches instantly.</p>
+      <form className="ai-form" onSubmit={submit}>
         <input
           value={preferences}
           onChange={(e) => setPreferences(e.target.value)}
@@ -31,10 +32,15 @@ function AIRecommendation() {
         <button type="submit">Recommend</button>
       </form>
       {error ? <p className="error-text">{error}</p> : null}
-      {explanation ? <p className="helper-text">{explanation}</p> : null}
-      <ul className="pet-list">
+      {explanation ? (
+        <div className="result-card">
+          <h3>Reason</h3>
+          <p className="helper-text">{explanation}</p>
+        </div>
+      ) : null}
+      <ul className="pet-grid">
         {results.map((pet) => (
-          <li className="pet-item" key={pet.id}>
+          <li className="pet-grid-card" key={pet.id}>
             <div>
               <h3>
                 {pet.name} - {pet.breed}

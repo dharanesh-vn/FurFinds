@@ -156,6 +156,9 @@ function AddPet() {
               <option value="Madurai">Madurai</option>
               <option value="Erode">Erode</option>
               <option value="Salem">Salem</option>
+              <option value="Trichy">Trichy</option>
+              <option value="Karur">Karur</option>
+              <option value="Tiruppur">Tiruppur</option>
             </select>
           </label>
 

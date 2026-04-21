@@ -37,6 +37,12 @@ export const getPets = (params = {}) => api.get("/pets/", { params });
 
 export const createPet = (payload) => api.post("/pets/", payload);
 
+export const getPetById = (petId) => api.get(`/pets/${petId}`);
+
+export const updatePet = (petId, payload) => api.put(`/pets/${petId}`, payload);
+
+export const deletePet = (petId) => api.delete(`/pets/${petId}`);
+
 export const adoptPet = (petId) => api.post(`/pets/${petId}/adopt`);
 
 export const recommendPets = (preferences, topK = 3) =>

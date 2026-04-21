@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { extractErrorMessage, loginUser } from "../api";
-import { decodeTokenPayload } from "../auth";
+import { decodeTokenPayload, setStoredAuth } from "../auth";
 
 function Login() {
   const navigate = useNavigate();
@@ -15,7 +15,8 @@ function Login() {
       setError("");
       const response = await loginUser({ email, password });
       const token = response.data.access_token;
-      localStorage.setItem("token", token);
+      const fallbackName = email.split("@")[0];
+      setStoredAuth({ token, displayName: fallbackName });
       const role = response.data.role || decodeTokenPayload(token)?.role;
       if (role === "admin") {
         navigate("/admin");

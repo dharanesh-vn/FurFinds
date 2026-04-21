@@ -46,6 +46,43 @@ def list_pets(
     )
 
 
+@router.get("/{id}", response_model=schemas.PetResponse)
+def get_pet(
+    id: int,
+    db: Session = Depends(get_db),
+    _current_user: models.User = Depends(get_current_user),
+):
+    pet = crud.get_pet_by_id(db=db, pet_id=id)
+    if pet is None:
+        raise HTTPException(status_code=404, detail=f"Pet with id {id} not found.")
+    return pet
+
+
+@router.put("/{id}", response_model=schemas.PetResponse)
+def edit_pet(
+    id: int,
+    payload: schemas.PetCreate,
+    db: Session = Depends(get_db),
+    _current_user: models.User = Depends(get_current_user),
+):
+    pet = crud.update_pet(db=db, pet_id=id, payload=payload)
+    if pet is None:
+        raise HTTPException(status_code=404, detail=f"Pet with id {id} not found.")
+    return pet
+
+
+@router.delete("/{id}")
+def remove_pet(
+    id: int,
+    db: Session = Depends(get_db),
+    _current_user: models.User = Depends(get_current_user),
+):
+    deleted = crud.delete_pet(db=db, pet_id=id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail=f"Pet with id {id} not found.")
+    return {"message": "Pet deleted successfully."}
+
+
 @router.post("/{id}/adopt", response_model=schemas.PetResponse)
 async def adopt_pet(
     id: int,

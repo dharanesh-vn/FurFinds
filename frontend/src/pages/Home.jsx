@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 function Home() {
   return (
     <section className="home-hero">
-      <div className="home-decor">🐾</div>
       <h1 className="home-title">FurFinds</h1>
       <p className="tagline">Find. Adopt. Love.</p>
       <p className="home-description">

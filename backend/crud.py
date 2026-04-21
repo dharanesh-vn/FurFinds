@@ -28,6 +28,41 @@ def get_all_pets(db: Session):
     return db.query(models.Pet).all()
 
 
+def get_pet_by_id(db: Session, pet_id: int):
+    return db.query(models.Pet).filter(models.Pet.id == pet_id).first()
+
+
+def update_pet(db: Session, pet_id: int, payload: schemas.PetCreate):
+    pet = get_pet_by_id(db=db, pet_id=pet_id)
+    if pet is None:
+        return None
+
+    pet_data = payload.model_dump()
+    pet_data["shelter_name"] = pet_data.get("shelter_name") or "FurFinds Shelter"
+    pet_data["contact_person"] = pet_data.get("contact_person") or "Rescue Team"
+    if pet_data.get("phone"):
+        phone = str(pet_data["phone"]).replace(" ", "")
+        if not phone.startswith("+91"):
+            phone = f"+91{phone.lstrip('+')}"
+        pet_data["phone"] = phone
+
+    for key, value in pet_data.items():
+        setattr(pet, key, value)
+
+    db.commit()
+    db.refresh(pet)
+    return pet
+
+
+def delete_pet(db: Session, pet_id: int) -> bool:
+    pet = get_pet_by_id(db=db, pet_id=pet_id)
+    if pet is None:
+        return False
+    db.delete(pet)
+    db.commit()
+    return True
+
+
 def get_filtered_pets(
     db: Session,
     pet_type: str | None = None,

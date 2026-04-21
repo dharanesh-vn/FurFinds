@@ -16,8 +16,8 @@ if errorlevel 1 goto :error
 python -m pip install --upgrade pip
 if errorlevel 1 goto :error
 
-if exist "requirements.txt" (
-    pip install -r requirements.txt
+if exist "backend\requirements.txt" (
+    pip install -r backend\requirements.txt
     if errorlevel 1 goto :error
 ) else (
     pip install fastapi sqlalchemy alembic uvicorn pydantic pytest httpx python-dateutil urllib3 chromadb bcrypt pyjwt
@@ -25,7 +25,11 @@ if exist "requirements.txt" (
 )
 
 echo [3/4] Running Alembic migrations...
+pushd backend
 python -m alembic upgrade head
+set "ALEMBIC_EXIT=%errorlevel%"
+popd
+if not "%ALEMBIC_EXIT%"=="0" goto :error
 if errorlevel 1 goto :error
 
 echo [4/4] Installing frontend dependencies...

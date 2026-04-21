@@ -1,254 +1,187 @@
 # FurFinds
-### Find. Adopt. Love.
+## Find. Adopt. Love.
 
-FurFinds is a full-stack pet adoption platform built for the intern coding challenge requirements and extended with practical extras (analytics, recommendations, and realtime updates).  
-The app is designed for local execution and evaluation after cloning.
+FurFinds is a full-stack pet adoption platform that combines a FastAPI backend, React frontend, SQLite database, OpenAPI-based SDK, analytics, and AI-assisted recommendations.
 
----
+This repository is structured to be understandable by both humans and AI agents, and to be runnable with either scripts or manual commands.
 
-## Intern Coding Challenge Mapping
+## What The System Does
 
-This section directly answers the challenge checklist.
+- Lets users register/login and browse pets through API-driven flows.
+- Supports full pet lifecycle operations: create, view, update, delete, adopt.
+- Prevents duplicate adoption through backend business logic enforcement.
+- Provides advanced filtering, analytics charts, admin controls, and AI recommendations.
+- Sends real-time adoption updates over WebSocket.
 
-### 1) Backend Development (FastAPI + SQLite)
-- Backend is implemented using `FastAPI`.
-- Required endpoints are available:
-  - `POST /pets/` (add pet)
-  - `POST /pets/{id}/adopt` (adopt pet)
-- OpenAPI standards are followed:
-  - Swagger UI: `http://127.0.0.1:8000/docs`
-  - OpenAPI JSON: `http://127.0.0.1:8000/openapi.json`
-- Error handling included with proper HTTP responses:
-  - invalid auth -> `401`
-  - duplicate user -> `400`
-  - adopt already adopted pet -> `400`
-  - pet not found -> `404`
-- Dependency injection is used for DB session and auth dependencies.
-- Unit tests are included under `tests/`.
+## Why FurFinds Is Unique
 
-#### Trick Logic (Adoption Rule)
-- Adoption is blocked if a pet is already adopted.
-- Example behavior:
-  - First adopt call for a pet -> success
-  - Second adopt call for same pet -> rejected with error
+- Uses a realistic Tamil Nadu-focused dataset (200 pets) for demo realism.
+- AI recommendation logic considers city, type, breed, vaccination, sterilization, and description hints.
+- Includes a complete ecosystem: backend + frontend + migrations + tests + generated Python SDK + automation scripts.
 
-### 2) Database (SQLite + Alembic)
-- SQLite is used (`pets.db` at runtime, ignored in git).
-- Alembic migrations are included in `alembic/versions/`.
-- Base pets schema includes:
-  - `id`, `name`, `type`, `adopted`
-- Additional profile fields are added through migrations to match the Add Pet UI.
-- `seed_data.sql` can be used for optional SQL-based seeding (or API/manual data entry).
+## Core Features
 
-### 3) Frontend (React + Axios)
-- Frontend is built using React (Vite).
-- Axios is used for all backend API calls.
-- Frontend supports:
-  - viewing pets
-  - adopting pets
-  - filtering/searching pets
-- Frontend does not access DB directly.
-- Bonus implemented:
-  - realtime updates through WebSocket events
-  - analytics charts
+- JWT authentication (`/auth/register`, `/auth/login`)
+- Pet CRUD + adoption workflow
+- Duplicate adoption prevention (cannot adopt the same pet twice)
+- Advanced multi-filter pet discovery
+- Analytics dashboard with charts (type/city/adoption/vaccination/age)
+- Admin control panel for user visibility and pet management
+- AI recommendation page with reasoning output
+- Real-time pet adoption updates via WebSocket
 
-### 4) Python SDK (OpenAPI Generator)
-- `pet_sdk/` is included as generated Python SDK output.
-- SDK generation command:
+## Tech Stack
+
+- Backend: FastAPI, SQLAlchemy, SQLite, Alembic, Pytest
+- Frontend: React (Vite), Axios, React Router, Chart.js
+- SDK: OpenAPI Generator Python client (`pet_sdk/`)
+- Runtime: Windows batch automation scripts
+
+## Project Structure
+
+```text
+FurFinds/
+├─ backend/                 # FastAPI app: routers, schemas, models, auth, AI, realtime
+│  ├─ alembic/              # Database migration environment and versioned revisions
+│  ├─ routers/              # Route modules: auth, pets, admin, analytics, recommend, ws
+│  └─ tests/                # Backend unit/integration tests (pytest)
+├─ frontend/                # React app: pages, layout, protected routes, API client
+├─ pet_sdk/                 # Generated Python SDK from OpenAPI spec
+├─ setupdev.bat             # One-time setup script for backend/frontend dependencies + migrations
+├─ runapplication.bat       # Launch script for backend + frontend
+├─ openapi.json             # OpenAPI artifact (regenerate from running backend as needed)
+└─ README.md                # Root project guide
+```
+
+## Admin Access (Pre-Seeded)
+
+- Email: [admin@furfinds.com]
+- Password: `Admin@123`
+
+Admin user is pre-seeded through migrations and is used to access the admin panel.
+
+## Run Methods
+
+### Method 1: Scripts (Recommended)
+
+From repository root:
+
+```bash
+setupdev.bat
+runapplication.bat
+```
+
+What scripts do:
+
+- `setupdev.bat`
+  - Creates Python virtual environment (`.venv`)
+  - Installs backend dependencies
+  - Runs `alembic upgrade head`
+  - Installs frontend dependencies
+- `runapplication.bat`
+  - Validates required files/tools
+  - Starts backend from `backend/`
+  - Runs migrations before backend boot
+  - Starts frontend dev server
+
+### Method 2: Manual Backend + Frontend Run
+
+Backend:
+
+```bash
+cd backend
+python -m venv env
+env\Scripts\activate
+pip install -r requirements.txt
+alembic upgrade head
+uvicorn main:app --reload
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Method 3: Minimal Run (Quick Start)
+
+For already configured environments:
+
+```bash
+cd backend
+uvicorn main:app --reload
+```
+
+```bash
+cd frontend
+npm run dev
+```
+
+### Method 4: SDK Generation/Usage
+
+Generate SDK from running backend:
+
 ```bash
 npm install -g @openapitools/openapi-generator-cli
 openapi-generator-cli generate -i http://localhost:8000/openapi.json -g python -o pet_sdk
 ```
-- Example usage:
+
+Example usage:
+
 ```python
 from pet_sdk.api.pets_api import PetsApi
 from pet_sdk import ApiClient
 
 client = ApiClient()
 api = PetsApi(client)
-# result = api.<your_method_here>()
-# print(result)
+# result = api.list_pets_pets__get()
 ```
 
-### 5) Setup Script (`setupdev.bat`)
-- Setup automation is provided in `setupdev.bat`.
-- It creates venv, installs backend/frontend dependencies, and runs migrations.
+## OpenAPI / Docs
 
-### 6) Run Script (`runapplication.bat`)
-- Full application launcher is provided in `runapplication.bat`.
-- It starts backend and frontend in separate terminal windows.
+- Swagger UI: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+- ReDoc: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+- OpenAPI JSON: [http://127.0.0.1:8000/openapi.json](http://127.0.0.1:8000/openapi.json)
 
-### Additional Notes from Challenge
-- Docker is not required and not used.
-- Validation and error handling are implemented.
-- Frontend focuses on functionality over visual complexity.
+## Error Handling And Edge Cases
 
----
-
-## Features
-
-- JWT-based auth (`/auth/register`, `/auth/login`)
-- Role-based access (user/admin)
-- Add pet / view pets / adopt pet flow
-- Duplicate adoption prevention
-- Pet filtering and search
-- Analytics dashboard (adoption/type/city/vaccination/age)
-- AI recommendation endpoint
-- Realtime adoption event updates via WebSocket
-
----
-
-## Tech Stack
-
-### Backend
-- FastAPI
-- SQLAlchemy
-- SQLite
-- Alembic
-- PyJWT + bcrypt
-- Pytest
-
-### Frontend
-- React (Vite)
-- React Router
-- Axios
-- Chart.js (`react-chartjs-2`)
-
-### SDK
-- OpenAPI Generator CLI
-- Generated Python SDK in `pet_sdk/`
-
----
-
-## Project Structure
-
-```text
-FurFinds/
-  main.py                      # FastAPI app entrypoint
-  models.py                    # SQLAlchemy models
-  schemas.py                   # Pydantic schemas
-  crud.py                      # DB operations and business logic
-  dependencies.py              # auth/db dependencies
-  security.py                  # JWT + password hashing
-  routers/                     # API route modules (pets, auth, admin, etc.)
-  alembic/                     # migration config + versions
-  tests/                       # backend tests
-  frontend/                    # React frontend
-  pet_sdk/                     # generated Python SDK
-  setupdev.bat                 # setup automation
-  runapplication.bat           # run automation
-  openapi.json                 # OpenAPI spec snapshot
-```
-
----
-
-## Admin Credentials (Default)
-
-- Email: `admin@furfinds.com`
-- Password: `Admin@123`
-
-### Why default admin exists
-- Evaluators need immediate access to admin-only functionality without manual DB edits.
-- Admin routes are restricted by role checks, so a normal registered user cannot act as admin.
-- Normal users created through `/auth/register` are assigned role `user` by default.
-
----
-
-## How to Run
-
-### 1) Clone
-```bash
-git clone <repo_url>
-cd FurFinds
-```
-
-### 2) Setup once
-```bat
-setupdev.bat
-```
-
-### 3) Run modes
-
-#### Backend only
-```bat
-call .venv\Scripts\activate.bat
-python -m uvicorn --app-dir . main:app --reload --host 127.0.0.1 --port 8000
-```
-
-#### Frontend only
-```bat
-cd frontend
-npm run dev -- --host 127.0.0.1 --port 5173
-```
-
-#### Full application
-```bat
-runapplication.bat
-```
-
-### Access URLs
-- Frontend: `http://127.0.0.1:5173`
-- Swagger: `http://127.0.0.1:8000/docs`
-- OpenAPI JSON: `http://127.0.0.1:8000/openapi.json`
-
----
-
-## API Summary
-
-### Auth
-- `POST /auth/register`
-- `POST /auth/login`
-
-### Pets
-- `GET /pets/`
-- `POST /pets/`
-- `POST /pets/{id}/adopt`
-- `POST /pets/recommend`
-
-### Other
-- `POST /recommend`
-- `GET /analytics`
-- `GET /admin/users` (admin only)
-- `WS /ws`
-
----
+- Duplicate adoption attempts are blocked with domain-safe API errors.
+- Invalid payloads return validation errors (4xx) through FastAPI/Pydantic.
+- Frontend renders API errors safely without crashing pages.
+- Auth-protected routes reject unauthorized requests cleanly.
 
 ## Testing
 
-Run backend tests:
-```bat
-call .venv\Scripts\activate.bat
-python -m pytest -q
+From `backend/`:
+
+```bash
+pytest
 ```
 
----
+Test coverage includes:
 
-## Evaluator Quick Verification
+- Register/login flows
+- Pet create/read/update/delete
+- Filter behavior
+- Adoption success and duplicate-adoption rejection
+- Authorization and admin route behavior
 
-1. Run `setupdev.bat`
-2. Run `runapplication.bat`
-3. Open Swagger at `/docs` and verify required endpoints
-4. Login as admin using default credentials
-5. Add a pet (`POST /pets/`) and adopt a pet (`POST /pets/{id}/adopt`)
-6. Try adopting same pet again -> should fail
-7. Open frontend and verify pets list + adoption flow + charts
+## Assignment Alignment
 
----
+This implementation satisfies the challenge requirements:
 
-## Troubleshooting
+- FastAPI backend with OpenAPI-compliant endpoints
+- SQLite database with Alembic migrations
+- React frontend using Axios-only API integration
+- Platform SDK generation via OpenAPI Generator CLI
+- Setup and run scripts (`setupdev.bat`, `runapplication.bat`)
+- Backend tests with `pytest`
+- Business logic enforcement (no re-adoption)
+- Bonus capabilities: analytics, AI recommendations, real-time updates, richer admin UX
 
-- If backend dependencies are missing:
-```bat
-call .venv\Scripts\activate.bat
-python -m pip install --upgrade pip
-```
-- If DB needs reset:
-```bat
-call .venv\Scripts\activate.bat
-python -m alembic upgrade head
-```
-- If frontend dependencies are missing:
-```bat
-cd frontend
-npm install
-```
+## Additional Guides
+
+- Backend details: `backend/README.md`
+- Frontend details: `frontend/README.md`
