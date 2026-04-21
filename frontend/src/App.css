@@ -1,17 +1,20 @@
 :root {
-  --bg: #f6f8fb;
+  --bg: #f9fafb;
   --surface: #ffffff;
-  --border: #e5e9f2;
+  --border: #e5e7eb;
   --text: #1f2937;
   --muted: #6b7280;
-  --primary: #ff6a00;
-  --primary-soft: #fff2e8;
+  --primary: #f97316;
+  --primary-hover: #ea580c;
+  --primary-soft: #fff7ed;
+  --orange-link: #c2410c;
 }
 
 .app-shell {
-  width: min(1140px, 94%);
+  width: min(1200px, 94%);
   margin: 0 auto;
-  padding: 26px 0 42px;
+  min-height: 100vh;
+  padding: 78px 0 42px;
 }
 
 .app-header {
@@ -24,6 +27,7 @@
 .app-header h1 {
   margin: 0;
   color: var(--text);
+  font-size: clamp(1.8rem, 2.2vw, 2.2rem);
 }
 
 .tagline {
@@ -40,6 +44,7 @@
   flex-wrap: wrap;
   margin-bottom: 16px;
   padding: 12px;
+  align-items: center;
 }
 
 .button-link,
@@ -47,30 +52,35 @@ button,
 .nav-links a {
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 8px 12px;
+  padding: 10px 14px;
   text-decoration: none;
-  background: var(--surface);
-  color: var(--text);
+  background: var(--primary);
+  color: #fff;
   font-weight: 600;
   cursor: pointer;
+  transition: transform 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
 }
 
 .nav-links a.active {
   background: var(--primary);
   border-color: var(--primary);
   color: #fff;
+  box-shadow: 0 8px 16px rgba(249, 115, 22, 0.22);
 }
 
 button:hover,
 .button-link:hover,
 .nav-links a:hover {
-  border-color: #cfd6e4;
+  background: var(--primary-hover);
+  border-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(249, 115, 22, 0.2);
 }
 
 .button-link.secondary {
   background: var(--primary-soft);
-  color: #b45309;
-  border-color: #ffd8bd;
+  color: var(--orange-link);
+  border-color: #fed7aa;
 }
 
 .page-container,
@@ -82,20 +92,24 @@ button:hover,
 }
 
 .page-container {
-  padding: 18px;
+  padding: 26px;
 }
 
 .card {
-  padding: 18px;
+  padding: 22px;
 }
 
 .home-hero {
   width: min(760px, 92%);
-  margin: 60px auto;
+  margin: max(48px, 10vh) auto;
   text-align: center;
-  padding: 36px;
+  min-height: min(72vh, 680px);
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  padding: clamp(28px, 4vw, 44px);
   border-radius: 18px;
-  background: #ffffff;
+  background: linear-gradient(180deg, #fff7ed 0%, #ffffff 58%);
   border: 1px solid var(--border);
   box-shadow: 0 14px 30px rgba(17, 24, 39, 0.08);
 }
@@ -108,8 +122,8 @@ button:hover,
 
 .home-description {
   max-width: 580px;
-  margin: 12px auto 0;
-  line-height: 1.6;
+  margin: 14px auto 0;
+  line-height: 1.75;
   color: #334155;
 }
 
@@ -123,17 +137,21 @@ button:hover,
 
 .home-btn {
   min-width: 130px;
+  min-height: 42px;
 }
 
 .home-features,
 .home-quote {
-  margin-top: 16px;
+  margin-top: 18px;
   color: var(--muted);
 }
 
 .auth-card {
   width: min(430px, 92%);
-  margin: 40px auto;
+  margin: max(48px, 12vh) auto;
+  min-height: min(68vh, 640px);
+  display: grid;
+  align-content: center;
 }
 
 .stack {
@@ -155,6 +173,14 @@ textarea {
   border-radius: 10px;
   padding: 9px 11px;
   background: #fff;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #fb923c;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.18);
 }
 
 label {
@@ -186,9 +212,9 @@ fieldset {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin: 14px 0;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 14px;
+  margin: 16px 0;
 }
 
 .stat-item {
@@ -207,6 +233,10 @@ fieldset {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.quick-links .button-link {
+  min-height: 42px;
 }
 
 .pet-list,
@@ -248,8 +278,8 @@ fieldset {
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 18px;
 }
 
 .pet-grid-card {
@@ -259,12 +289,12 @@ fieldset {
   display: grid;
   gap: 8px;
   background: #fff;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
 }
 
 .pet-grid-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 16px rgba(15, 23, 42, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 24px rgba(15, 23, 42, 0.11);
 }
 
 .pet-item-adopted {
@@ -309,13 +339,13 @@ fieldset {
 }
 
 .badge-positive {
-  background: #dcfce7;
-  color: #166534;
+  background: #ffedd5;
+  color: #9a3412;
 }
 
 .badge-muted {
-  background: #eef2f7;
-  color: #475569;
+  background: #fff7ed;
+  color: #7c2d12;
 }
 
 .adopt-btn {
@@ -324,9 +354,9 @@ fieldset {
 
 .chart-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 14px;
 }
 
 .chart-wrap {
@@ -351,7 +381,10 @@ fieldset {
 
 .table-wrap {
   overflow-x: auto;
-  margin-top: 12px;
+  margin-top: 18px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
 }
 
 .admin-table {
@@ -363,13 +396,14 @@ fieldset {
 .admin-table th,
 .admin-table td {
   border: 1px solid var(--border);
-  padding: 10px;
+  padding: 12px;
   text-align: left;
   vertical-align: middle;
 }
 
 .admin-table th {
-  background: #f8fafc;
+  background: #fff7ed;
+  color: var(--orange-link);
 }
 
 .admin-actions {
@@ -392,9 +426,13 @@ fieldset {
 .result-card {
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 12px;
+  padding: 14px;
   margin-bottom: 14px;
-  background: #f8fafc;
+  background: #fff7ed;
+}
+
+a {
+  color: var(--orange-link);
 }
 
 @media (max-width: 800px) {
@@ -404,8 +442,44 @@ fieldset {
     grid-template-columns: 1fr;
   }
 
+  .app-shell {
+    padding-top: 64px;
+  }
+
+  .nav-links {
+    padding: 10px;
+  }
+
+  .nav-links a,
+  .nav-links button,
+  .button-link,
+  button {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
   .home-hero {
-    padding: 28px 18px;
-    margin-top: 36px;
+    min-height: auto;
+    padding: 24px 16px;
+    margin-top: 30px;
+  }
+
+  .auth-card {
+    min-height: auto;
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+
+  .home-title {
+    font-size: 1.9rem;
+  }
+
+  .page-container {
+    padding: 16px;
+  }
+
+  .card {
+    padding: 16px;
   }
 }
